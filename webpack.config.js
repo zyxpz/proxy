@@ -12,7 +12,9 @@ const myIp = require('my-ip')();
 
 const APP_PATH = process.cwd();
 
-const { MockWebpackPlugin, proxy } = require('./proxy/index');
+const apiMocker = require('webpack-api-mocker');
+
+const path = require('path');
 
 const {
 	entry
@@ -62,7 +64,16 @@ const config = {
 	devServer: {
 		host: milieu === 'development' ? 'localhost' : myIp,
 		port: '8001',
-		proxy,
+		stats: 'none',
+		before: app => {
+			// apiMocker(app, path.resolve('./proxy.js'));
+			// console.log(mocker);
+			app.get('/api/mock', (req, res) => {
+				res.json({
+					data: 'oks'
+				});
+			});
+		}
 	},
 	optimization: {
 		minimize: milieu === 'production' ? true : false,
@@ -83,7 +94,7 @@ const config = {
 		new webpack.EvalSourceMapDevToolPlugin({
 			filename: '[name].js.map',
 		}),
-		new MockWebpackPlugin()
+		// new MockWebpackPlugin()
 	]
 };
 
